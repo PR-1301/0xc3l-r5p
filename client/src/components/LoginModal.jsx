@@ -109,9 +109,6 @@ export default function LoginModal({ onLoginSuccess }) {
           </button>
         </form>
 
-        <div className="login-footer">
-          <span>🔒 Secured with 256-bit JWT authentication</span>
-        </div>
       </div>
     </div>
   );
