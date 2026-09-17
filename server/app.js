@@ -13,7 +13,7 @@ const MONGODB_URI = process.env.MONGODB_URI;
 
 // Middlewares
 app.use(cors({
-    origin: `https://${process.env.API_URL}`,
+    origin: "https://celestius-catapult-2026.vercel.app",
     credentials: true
 }));
 app.use(express.json());
