@@ -4,18 +4,21 @@ import {
   getResponsesByDepartment,
   getDepartmentsSummary,
 } from "../controllers/studentController.js";
+import {
+  adminLogin,
+  verifyAdminSession,
+} from "../controllers/authController.js";
+import authMiddleware from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 
-// GET /departments - Fetch list of all departments with counts
-router.get("/departments", getDepartmentsSummary);
+// --- Public Auth Routes ---
+router.post("/login", adminLogin);
 
-// GET /departments/:departments - Fetch responses for a specific department
-router.get("/departments/:departments", getResponsesByDepartment);
-
-// GET / - Fetch all student responses (supports ?department=, ?role=, ?search=)
-router.get("/", getAllResponses);
+// --- Protected Admin Routes ---
+router.get("/verify", authMiddleware, verifyAdminSession);
+router.get("/departments", authMiddleware, getDepartmentsSummary);
+router.get("/departments/:departments", authMiddleware, getResponsesByDepartment);
+router.get("/", authMiddleware, getAllResponses);
 
 export default router;
-
-

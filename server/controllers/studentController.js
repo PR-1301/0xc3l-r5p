@@ -1,10 +1,6 @@
 import Student from "../models/Student.js";
 
-/**
- * @desc    Fetch all student responses from the database
- * @route   GET /api/students
- * @access  Public
- */
+
 export const getAllResponses = async (req, res) => {
   try {
     const { role, subRole, department, year, search } = req.query;
