@@ -10,22 +10,56 @@ export default function Navbar({
 }) {
   return (
     <header className="navbar">
-      <div className="navbar-brand">
-        <div className="brand-logo">
-          <Users size={22} className="brand-icon" />
-        </div>
-        <div>
-          <h1 className="brand-title">Recruitment Responses</h1>
-          <div className="brand-meta">
-            <span className="status-dot"></span>
-            <span className="status-text">Database Connected</span>
-            <span className="divider">•</span>
-            <span className="count-pill">{totalCount} Total Entries</span>
+      <div className="navbar-top-row">
+        <div className="navbar-brand">
+          <div className="brand-logo">
+            <Users size={20} className="brand-icon" />
           </div>
+          <div className="brand-text-block">
+            <h1 className="brand-title">Recruitments</h1>
+            <div className="brand-meta">
+              <span className="status-dot"></span>
+              <span className="status-text">Connected</span>
+              <span className="count-pill">{totalCount}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile Quick Actions Header */}
+        <div className="navbar-actions-mobile">
+          <button
+            className="btn-icon-mobile"
+            onClick={onRefresh}
+            disabled={loading}
+            title="Refresh Data"
+            aria-label="Refresh Data"
+          >
+            <RefreshCw size={17} className={loading ? "spinner" : ""} />
+          </button>
+
+          <button
+            className="btn-icon-mobile btn-icon-export"
+            onClick={onExportCSV}
+            disabled={totalCount === 0 || loading}
+            title="Export CSV"
+            aria-label="Export CSV"
+          >
+            <Download size={17} />
+          </button>
+
+          <button
+            className="btn-icon-mobile btn-icon-logout"
+            onClick={onLogout}
+            title="Logout"
+            aria-label="Logout"
+          >
+            <LogOut size={17} />
+          </button>
         </div>
       </div>
 
-      <div className="navbar-actions">
+      {/* Desktop Actions */}
+      <div className="navbar-actions-desktop">
         <button
           className="btn btn-secondary"
           onClick={onRefresh}
@@ -63,3 +97,4 @@ export default function Navbar({
     </header>
   );
 }
+

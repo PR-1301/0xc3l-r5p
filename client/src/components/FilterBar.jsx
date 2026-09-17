@@ -64,10 +64,11 @@ export default function FilterBar({
                 onRoleFilterChange(e.target.value);
                 onSubRoleFilterChange(""); // Reset subrole on role change
               }}
+              aria-label="Filter by Track"
             >
-              <option value="">All Tracks (Tech & Non-Tech)</option>
-              <option value="Tech">Tech Track</option>
-              <option value="Non-Tech">Non-Tech Track</option>
+              <option value="">All Tracks</option>
+              <option value="Tech">Tech</option>
+              <option value="Non-Tech">Non-Tech</option>
             </select>
           </div>
 
@@ -76,8 +77,9 @@ export default function FilterBar({
             <select
               value={subRoleFilter}
               onChange={(e) => onSubRoleFilterChange(e.target.value)}
+              aria-label="Filter by Role"
             >
-              <option value="">All Roles / Specializations</option>
+              <option value="">All Roles</option>
               {availableSubRoles.map((role) => (
                 <option key={role} value={role}>
                   {role}
@@ -91,8 +93,9 @@ export default function FilterBar({
             <select
               value={yearFilter}
               onChange={(e) => onYearFilterChange(e.target.value)}
+              aria-label="Filter by Year"
             >
-              <option value="">All Academic Years</option>
+              <option value="">All Years</option>
               <option value="1st Year">1st Year</option>
               <option value="2nd Year">2nd Year</option>
               <option value="3rd Year">3rd Year</option>
@@ -103,11 +106,11 @@ export default function FilterBar({
           {/* Reset Filters */}
           {hasActiveFilters && (
             <button
-              className="btn btn-ghost"
+              className="btn btn-ghost reset-filter-btn"
               onClick={onResetFilters}
               title="Reset all filters"
             >
-              <RotateCcw size={15} />
+              <RotateCcw size={14} />
               <span>Reset</span>
             </button>
           )}
@@ -116,10 +119,6 @@ export default function FilterBar({
 
       {/* Department Tabs Filter */}
       <div className="department-scroll-container">
-        <span className="dept-label">
-          <Filter size={14} />
-          <span>Departments:</span>
-        </span>
         <div className="dept-pills">
           <button
             className={`dept-pill ${selectedDepartment === "" ? "active" : ""}`}

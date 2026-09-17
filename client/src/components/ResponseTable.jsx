@@ -46,11 +46,12 @@ export default function ResponseTable({ responses, onSelectStudent, loading }) {
 
   return (
     <div className="table-card">
-      <div className="table-responsive">
+      {/* Desktop Table View */}
+      <div className="table-responsive desktop-only">
         <table className="responses-table">
           <thead>
             <tr>
-              <th style={{ width: "60px" }}>#</th>
+              <th style={{ width: "50px" }}>#</th>
               <th>Applicant</th>
               <th>Dept & Year</th>
               <th>Track & Role</th>
@@ -114,7 +115,6 @@ export default function ResponseTable({ responses, onSelectStudent, loading }) {
                   {/* Contact Info */}
                   <td onClick={(e) => e.stopPropagation()}>
                     <div className="contact-cell">
-                      {/* Personal Email */}
                       {student.personalEmail && (
                         <div className="contact-item">
                           <Mail size={13} className="contact-icon" />
@@ -129,7 +129,7 @@ export default function ResponseTable({ responses, onSelectStudent, loading }) {
                                 `pmail-${student._id}`
                               )
                             }
-                            title="Copy email"
+                            title="Copy personal email"
                           >
                             {copiedField === `pmail-${student._id}` ? (
                               <Check size={12} className="text-success" />
@@ -140,7 +140,6 @@ export default function ResponseTable({ responses, onSelectStudent, loading }) {
                         </div>
                       )}
 
-                      {/* CIT Email (if provided) */}
                       {student.email && (
                         <div className="contact-item cit-mail">
                           <Mail size={13} className="contact-icon" />
@@ -150,7 +149,6 @@ export default function ResponseTable({ responses, onSelectStudent, loading }) {
                         </div>
                       )}
 
-                      {/* Phone */}
                       {student.mobileNumber && (
                         <div className="contact-item">
                           <Phone size={13} className="contact-icon" />
@@ -242,6 +240,109 @@ export default function ResponseTable({ responses, onSelectStudent, loading }) {
             })}
           </tbody>
         </table>
+      </div>
+
+      {/* Mobile Card List View (Optimized for Phones) */}
+      <div className="mobile-cards-container mobile-only">
+        {responses.map((student, index) => {
+          const isTech = student.role === "Tech";
+          return (
+            <div
+              key={student._id || index}
+              className="mobile-student-card"
+              onClick={() => onSelectStudent(student)}
+            >
+              {/* Top Header Row */}
+              <div className="mobile-card-header">
+                <div className="applicant-cell">
+                  <div className="avatar-circle">
+                    {student.Name ? student.Name.charAt(0).toUpperCase() : "S"}
+                  </div>
+                  <div>
+                    <div className="student-name">{student.Name}</div>
+                    <div className="mobile-dept-sub">
+                      <span className="dept-highlight">{student.department}</span>
+                      <span>•</span>
+                      <span>{student.year} (Sec {student.section || "A"})</span>
+                    </div>
+                  </div>
+                </div>
+                <span className="mobile-index-badge">#{index + 1}</span>
+              </div>
+
+              {/* Roles Row */}
+              <div className="mobile-card-roles">
+                <span className={`track-pill ${isTech ? "track-tech" : "track-nontech"}`}>
+                  {student.role}
+                </span>
+                <span className="subrole-pill">{student.subRole}</span>
+                {student.regNumber && (
+                  <span className="reg-badge">Reg: {student.regNumber}</span>
+                )}
+              </div>
+
+              {/* Contact & Socials Bar */}
+              <div className="mobile-card-footer" onClick={(e) => e.stopPropagation()}>
+                <div className="mobile-contact-actions">
+                  {student.personalEmail && (
+                    <button
+                      className="mobile-quick-action"
+                      onClick={() => copyToClipboard(student.personalEmail, `m-email-${student._id}`)}
+                      title="Copy email"
+                    >
+                      <Mail size={14} />
+                      <span>{copiedField === `m-email-${student._id}` ? "Copied!" : "Email"}</span>
+                    </button>
+                  )}
+
+                  {student.mobileNumber && (
+                    <button
+                      className="mobile-quick-action"
+                      onClick={() => copyToClipboard(student.mobileNumber, `m-phone-${student._id}`)}
+                      title="Copy phone"
+                    >
+                      <Phone size={14} />
+                      <span>{copiedField === `m-phone-${student._id}` ? "Copied!" : "Phone"}</span>
+                    </button>
+                  )}
+                </div>
+
+                <div className="mobile-social-actions">
+                  {student.githubUrl && (
+                    <a
+                      href={student.githubUrl.startsWith("http") ? student.githubUrl : `https://${student.githubUrl}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="social-btn github"
+                      title="GitHub"
+                    >
+                      <GithubIcon size={14} />
+                    </a>
+                  )}
+                  {student.linkedinUrl && (
+                    <a
+                      href={student.linkedinUrl.startsWith("http") ? student.linkedinUrl : `https://${student.linkedinUrl}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="social-btn linkedin"
+                      title="LinkedIn"
+                    >
+                      <LinkedinIcon size={14} />
+                    </a>
+                  )}
+                  <button
+                    className="btn-view-details"
+                    onClick={() => onSelectStudent(student)}
+                    title="View details"
+                  >
+                    <Eye size={14} />
+                    <span>View</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
