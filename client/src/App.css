@@ -1,4 +1,8 @@
-/* Reset and Layout */
+/* =========================================================
+   Celestius Recruitment Responses - Complete Design System
+   ========================================================= */
+
+/* App Layout & Reset */
 .app-layout {
   min-height: 100vh;
   display: flex;
@@ -24,7 +28,7 @@
   width: 100%;
 }
 
-/* Animations */
+/* Animations & Spinners */
 @keyframes spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
@@ -73,6 +77,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  width: 100%;
 }
 
 .navbar-brand {
@@ -192,7 +197,7 @@
   color: var(--accent-tech);
 }
 
-/* Buttons */
+/* Generic Buttons */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -495,7 +500,7 @@
   font-size: 0.68rem;
 }
 
-/* Responses Table */
+/* Responses Table Card */
 .table-card {
   background: var(--bg-card);
   backdrop-filter: var(--glass-blur);
@@ -751,17 +756,19 @@
   color: white;
 }
 
-/* Visibility classes */
+/* =========================================================
+   Visibility Classes (Desktop vs Mobile Exclusive)
+   ========================================================= */
 .desktop-only {
-  display: block;
-}
-.mobile-only {
-  display: none;
+  display: block !important;
 }
 
-/* Mobile Card View Styles */
+.mobile-only {
+  display: none !important;
+}
+
+/* Mobile Cards Container */
 .mobile-cards-container {
-  display: flex;
   flex-direction: column;
   gap: 0.75rem;
   padding: 0.75rem;
@@ -1353,7 +1360,7 @@
 }
 
 /* =========================================================
-   Mobile Optimization (@media max-width: 850px)
+   Mobile Viewport Adjustments (@media max-width: 850px)
    ========================================================= */
 @media (max-width: 850px) {
   .desktop-only {
