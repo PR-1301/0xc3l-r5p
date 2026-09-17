@@ -1,122 +1,230 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import React, { useState, useEffect, useCallback } from "react";
+import Navbar from "./components/Navbar";
+import StatsCards from "./components/StatsCards";
+import FilterBar from "./components/FilterBar";
+import ResponseTable from "./components/ResponseTable";
+import StudentDetailModal from "./components/StudentDetailModal";
+import LoginModal from "./components/LoginModal";
+import {
+  fetchAllResponses,
+  fetchDepartments,
+  fetchResponsesByDepartment,
+  verifyAdminSession,
+} from "./services/api";
+import { exportResponsesToCSV } from "./utils/csvExport";
+import "./App.css";
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authChecking, setAuthChecking] = useState(true);
+
+  const [responses, setResponses] = useState([]);
+  const [departments, setDepartments] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  // Filters State
+  const [selectedDepartment, setSelectedDepartment] = useState("");
+  const [roleFilter, setRoleFilter] = useState("");
+  const [subRoleFilter, setSubRoleFilter] = useState("");
+  const [yearFilter, setYearFilter] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Selected Student for Modal
+  const [selectedStudent, setSelectedStudent] = useState(null);
+
+  // Check auth session on startup
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = localStorage.getItem("admin_token");
+      if (!token) {
+        setIsAuthenticated(false);
+        setAuthChecking(false);
+        return;
+      }
+
+      try {
+        await verifyAdminSession();
+        setIsAuthenticated(true);
+      } catch (err) {
+        localStorage.removeItem("admin_token");
+        setIsAuthenticated(false);
+      } finally {
+        setAuthChecking(false);
+      }
+    };
+
+    checkAuth();
+
+    const handleLogoutEvent = () => {
+      setIsAuthenticated(false);
+    };
+
+    window.addEventListener("admin_logout", handleLogoutEvent);
+    return () => window.removeEventListener("admin_logout", handleLogoutEvent);
+  }, []);
+
+  // Fetch departments list
+  const loadDepartments = useCallback(async () => {
+    try {
+      const data = await fetchDepartments();
+      if (data.success) {
+        setDepartments(data.data || []);
+      }
+    } catch (err) {
+      console.error("Failed to load departments:", err);
+    }
+  }, []);
+
+  // Fetch student responses based on filters
+  const loadResponses = useCallback(async () => {
+    if (!isAuthenticated) return;
+    setLoading(true);
+    setError("");
+
+    try {
+      let data;
+      // If department is selected specifically and no search query, use department endpoint or filtered query
+      const params = {};
+      if (selectedDepartment) params.department = selectedDepartment;
+      if (roleFilter) params.role = roleFilter;
+      if (subRoleFilter) params.subRole = subRoleFilter;
+      if (yearFilter) params.year = yearFilter;
+      if (searchQuery.trim()) params.search = searchQuery.trim();
+
+      data = await fetchAllResponses(params);
+
+      if (data.success) {
+        setResponses(data.data || []);
+      } else {
+        setError(data.message || "Failed to load responses");
+      }
+    } catch (err) {
+      console.error("Error loading responses:", err);
+      setError(
+        err.response?.data?.message || "Failed to connect to backend server."
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, [isAuthenticated, selectedDepartment, roleFilter, subRoleFilter, yearFilter, searchQuery]);
+
+  // Trigger loads when authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadDepartments();
+      loadResponses();
+    }
+  }, [isAuthenticated, loadDepartments, loadResponses]);
+
+  const handleLoginSuccess = () => {
+    setIsAuthenticated(true);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("admin_token");
+    setIsAuthenticated(false);
+    setResponses([]);
+    setDepartments([]);
+  };
+
+  const handleResetFilters = () => {
+    setSelectedDepartment("");
+    setRoleFilter("");
+    setSubRoleFilter("");
+    setYearFilter("");
+    setSearchQuery("");
+  };
+
+  const handleExportCSV = () => {
+    const filename = selectedDepartment
+      ? `${selectedDepartment}_responses.csv`
+      : "all_student_responses.csv";
+    exportResponsesToCSV(responses, filename);
+  };
+
+  const hasActiveFilters = Boolean(
+    selectedDepartment || roleFilter || subRoleFilter || yearFilter || searchQuery
+  );
+
+  if (authChecking) {
+    return (
+      <div className="app-loader-screen">
+        <div className="spinner-large"></div>
+        <p>Verifying secure session...</p>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <LoginModal onLoginSuccess={handleLoginSuccess} />;
+  }
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <div className="app-layout">
+      {/* Top Navigation */}
+      <Navbar
+        totalCount={responses.length}
+        onRefresh={() => {
+          loadDepartments();
+          loadResponses();
+        }}
+        onExportCSV={handleExportCSV}
+        onLogout={handleLogout}
+        loading={loading}
+      />
 
-      <div className="ticks"></div>
+      <main className="main-content">
+        <div className="dashboard-container">
+          {/* Quick Metrics */}
+          <StatsCards
+            responses={responses}
+            departmentsCount={departments.length}
+          />
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+          {/* Filtering Section */}
+          <FilterBar
+            departments={departments}
+            selectedDepartment={selectedDepartment}
+            onSelectDepartment={setSelectedDepartment}
+            roleFilter={roleFilter}
+            onRoleFilterChange={setRoleFilter}
+            subRoleFilter={subRoleFilter}
+            onSubRoleFilterChange={setSubRoleFilter}
+            yearFilter={yearFilter}
+            onYearFilterChange={setYearFilter}
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            onResetFilters={handleResetFilters}
+            hasActiveFilters={hasActiveFilters}
+          />
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+          {/* Error Banner */}
+          {error && (
+            <div className="dashboard-error-banner">
+              <span>{error}</span>
+              <button onClick={loadResponses} className="retry-btn">
+                Retry
+              </button>
+            </div>
+          )}
+
+          {/* Responses Table */}
+          <ResponseTable
+            responses={responses}
+            onSelectStudent={setSelectedStudent}
+            loading={loading}
+          />
+        </div>
+      </main>
+
+      {/* Applicant Detail Popup Modal */}
+      {selectedStudent && (
+        <StudentDetailModal
+          student={selectedStudent}
+          onClose={() => setSelectedStudent(null)}
+        />
+      )}
+    </div>
+  );
 }
-
-export default App
