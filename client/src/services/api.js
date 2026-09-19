@@ -1,6 +1,15 @@
 import axios from "axios";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const rawApiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const formatApiUrl = (url) => {
+  if (!url) return "http://localhost:5000";
+  let cleanUrl = url.trim();
+  if (!cleanUrl.startsWith("http://") && !cleanUrl.startsWith("https://")) {
+    cleanUrl = `https://${cleanUrl}`;
+  }
+  return cleanUrl.replace(/\/+$/, "");
+};
+const API_BASE_URL = formatApiUrl(rawApiUrl);
 
 // Create Axios Instance
 const api = axios.create({

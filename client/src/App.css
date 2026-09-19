@@ -149,6 +149,10 @@
   display: none;
 }
 
+.mobile-floating-capsule {
+  display: none;
+}
+
 .btn-icon-mobile {
   width: 36px;
   height: 36px;
@@ -935,7 +939,7 @@
   align-items: center;
   justify-content: center;
   padding: 1rem;
-  z-index: 100;
+  z-index: 2000;
   animation: fadeIn 0.15s ease-out;
 }
 
@@ -1371,17 +1375,22 @@
   }
 
   .main-content {
-    padding: 0.85rem 0.75rem 2rem 0.75rem;
+    padding: 0.85rem 0.75rem 6.5rem 0.75rem;
   }
 
-  /* Navbar on Mobile */
+  /* Navbar on Mobile (Top Header for Brand only) */
   .navbar {
-    padding: 0.75rem 0.85rem;
-    display: block;
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
   }
 
   .navbar-top-row {
     width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
   }
 
   .navbar-actions-desktop {
@@ -1389,9 +1398,132 @@
   }
 
   .navbar-actions-mobile {
+    display: none !important;
+  }
+
+  /* =========================================================
+     Mobile Floating Capsule Navigation (Bottom Pill Bar)
+     ========================================================= */
+  .mobile-floating-capsule {
     display: flex !important;
+    position: fixed;
+    bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 90;
+    width: auto;
+    min-width: 270px;
+    max-width: calc(100vw - 2.5rem);
+    background: rgba(13, 20, 36, 0.78);
+    backdrop-filter: blur(24px) saturate(190%);
+    -webkit-backdrop-filter: blur(24px) saturate(190%);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: 9999px;
+    padding: 0.45rem 0.85rem;
+    box-shadow: 
+      0 16px 40px -4px rgba(0, 0, 0, 0.7),
+      0 4px 16px rgba(0, 0, 0, 0.4),
+      inset 0 1px 1px rgba(255, 255, 255, 0.35),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.25);
     align-items: center;
-    gap: 0.4rem;
+    justify-content: space-evenly;
+    gap: 0.6rem;
+    user-select: none;
+    box-sizing: border-box;
+    animation: capsuleFloatUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  @keyframes capsuleFloatUp {
+    from {
+      opacity: 0;
+      transform: translate(-50%, 20px) scale(0.96);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, 0) scale(1);
+    }
+  }
+
+  .capsule-nav-item {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.82);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 9999px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
+    min-width: 64px;
+  }
+
+  .capsule-icon-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    transition: all 0.2s ease;
+    color: #f1f5f9;
+  }
+
+  .capsule-label {
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: rgba(255, 255, 255, 0.75);
+    transition: color 0.2s ease;
+    line-height: 1;
+  }
+
+  .capsule-nav-item:hover,
+  .capsule-nav-item:focus-visible {
+    color: #ffffff;
+  }
+
+  .capsule-nav-item:hover .capsule-icon-wrapper,
+  .capsule-nav-item:focus-visible .capsule-icon-wrapper {
+    background: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+    transform: translateY(-2px);
+  }
+
+  .capsule-nav-item:hover .capsule-label,
+  .capsule-nav-item:focus-visible .capsule-label {
+    color: #ffffff;
+  }
+
+  .capsule-nav-item:active {
+    transform: scale(0.92);
+  }
+
+  .capsule-nav-item:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    pointer-events: none;
+    transform: none;
+  }
+
+  /* Specific item hover enhancements */
+  .capsule-nav-item.capsule-item-export:hover .capsule-icon-wrapper {
+    background: rgba(99, 102, 241, 0.25);
+    color: #a5b4fc;
+  }
+
+  .capsule-nav-item.capsule-item-logout:hover .capsule-icon-wrapper {
+    background: rgba(239, 68, 68, 0.25);
+    color: #fca5a5;
+  }
+
+  .capsule-nav-item.capsule-item-logout:hover .capsule-label {
+    color: #fca5a5;
   }
 
   .brand-title {
